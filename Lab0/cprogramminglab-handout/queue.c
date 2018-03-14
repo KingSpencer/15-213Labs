@@ -23,13 +23,35 @@
 queue_t *q_new()
 {
     /* Remember to handle the case if malloc returned NULL */
-    return NULL;
+    queue_t *queue_new; 
+    if (NULL == (queue_new = (queue_t *) malloc(sizeof(queue_t)))) {
+        return NULL;
+    }
+    queue_new -> head = NULL;
+    queue_new -> tail = NULL;
+    queue_new -> size = 0;
+
+    return queue_new;
 }
 
 /* Free all storage used by queue */
 void q_free(queue_t *q)
 {
     /* Remember to free the queue structue and list elements */
+    if (NULL == q) {
+        return;
+    }
+    list_ele_t *temp_head, *temp_del;
+
+    temp_head = q -> head;
+    while (temp_head != NULL) {
+        temp_del = temp_head;
+        temp_head = temp_head -> next;
+        free(temp_del);
+    }
+    free(q);
+    q = NULL;
+    return;
 }
 
 /*
@@ -41,6 +63,23 @@ bool q_insert_head(queue_t *q, int v)
 {
     /* What should you do if the q is NULL? */
     /* What if malloc returned NULL? */
+    list_ele_t *temp_list, *temp_head;
+    if (NULL == q || NULL == (temp_list = (list_ele_t *) malloc(sizeof(list_ele_t)))) {
+        return false;
+    }
+    temp_list -> value = v;
+    //if (q -> head == NULL) {
+    //    q -> head = temp_list;
+    //    q -> tail = q -> head;
+    //    return true;
+    //}
+    temp_head = q -> head;
+    q -> head = temp_list;
+    if (NULL == q -> tail) {
+        q -> tail = temp_list;
+    }
+    temp_list -> next = temp_head;
+    q -> size ++;
     return true;
 }
 
@@ -53,7 +92,22 @@ bool q_insert_head(queue_t *q, int v)
 bool q_insert_tail(queue_t *q, int v)
 {
     /* Remember: It should operate in O(1) time */
-    return false;
+    list_ele_t *temp_list, *temp_tail;
+    if (NULL == q || NULL == (temp_list = (list_ele_t *)malloc(sizeof(list_ele_t)))) {
+        return false;    
+    }
+    temp_list -> value = v;
+    temp_list -> next = NULL;
+    temp_tail = q -> tail;
+    q -> tail = temp_list;
+    if (NULL == q -> head) {
+        q -> head = temp_list;
+        q -> size ++;
+        return true;    
+    }
+    temp_tail -> next = temp_list;
+    q -> size ++;
+    return true;
 }
 
 /*
@@ -65,6 +119,23 @@ bool q_insert_tail(queue_t *q, int v)
 */
 bool q_remove_head(queue_t *q, int *vp)
 {
+    if (NULL == q || NULL == q -> head || NULL == vp) {
+        return false;
+    }
+    if (q -> head == q -> tail) {
+        *vp = q -> head -> value;
+        free(q -> head);
+        q -> head = NULL;
+        q -> tail = NULL;
+        q -> size = 0;
+        return true;
+    }
+
+    list_ele_t * temp_list = q -> head;
+    q -> head = q -> head -> next;
+    *vp = temp_list -> value;
+    q -> size --;
+    free(temp_list);
     return true;
 }
 
@@ -75,7 +146,10 @@ bool q_remove_head(queue_t *q, int *vp)
 int q_size(queue_t *q)
 {
     /* Remember: It should operate in O(1) time */
-    return 0;
+    if (NULL == q || NULL == q -> head) {
+        return 0;
+    }
+    else return q -> size;
 }
 
 /*
@@ -87,6 +161,22 @@ int q_size(queue_t *q)
  */
 void q_reverse(queue_t *q)
 {
-
+    if (NULL == q || NULL == q -> head || q -> head == q -> tail)
+        return;
+    list_ele_t * pointer1 = q -> head;
+    list_ele_t * pointer2 = q -> head -> next;
+    q -> head -> next = NULL;
+    list_ele_t * temp_pointer;
+    while (pointer2 != NULL) {
+        temp_pointer = pointer2 -> next;
+        pointer2 -> next = pointer1;
+        pointer1 = pointer2;
+        pointer2 = temp_pointer;        
+    }
+    // swap head and tail
+    temp_pointer = q -> head;
+    q -> head = q -> tail;
+    q -> tail = temp_pointer;
+    return;
 }
 

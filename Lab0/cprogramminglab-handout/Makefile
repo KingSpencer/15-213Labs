@@ -9,8 +9,9 @@ queue.o: queue.c queue.h harness.h
 	$(CC) $(CFLAGS) -c queue.c
 
 #you need to add queue.o to the build process and the linking process here
-qtest: qtest.c report.c console.c harness.c 
-	$(CC) $(CFLAGS) -o qtest qtest.c report.c console.c harness.c 
+qtest: qtest.c report.c console.c harness.c queue.c
+	$(CC) $(CFLAGS) -o qtest qtest.c report.c console.c harness.c queue.c
+	rm -f queue.o
 
 test: qtest driver.py
 	chmod +x driver.py
